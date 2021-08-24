@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { isAutheticated } from "../auth/helper";
-import { cartEmpty, loadCart } from "./helper/cartHelper";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import StripeCheckoutButton from "react-stripe-checkout";
+import { isAuthenticated } from "../auth/helper";
+import { cartEmpty } from "./helper/cartHelper";
+import Stripecheckout from "react-stripe-checkout";
 import { API } from "../backend";
-import { createOrder } from "./helper/orderHelper";
 
 const StripeCheckout = ({
   products,
@@ -18,13 +17,13 @@ const StripeCheckout = ({
     address: "",
   });
 
-  const token = isAutheticated() && isAutheticated().token;
-  const userId = isAutheticated() && isAutheticated().user._id;
+  const token = isAuthenticated() && isAuthenticated().token;
+  const userId = isAuthenticated() && isAuthenticated().user._id;
 
   const getFinalAmount = () => {
     let amount = 0;
-    products.map((p) => {
-      amount = amount + p.price;
+    products.map((product) => {
+      amount = amount + product.price;
     });
     return amount;
   };
@@ -39,38 +38,47 @@ const StripeCheckout = ({
     };
     return fetch(`${API}/stripepayment`, {
       method: "POST",
-      headers,
+      headers: headers,
       body: JSON.stringify(body),
     })
       .then((response) => {
-        console.log(response);
-        //call further methods
+        //  console.log(response);
+        // call furthur
+        const { status } = response;
+        console.log("STATUS", status);
+        cartEmpty(() => {
+          console.log("Emptied the cart..!");
+          setReload(!reload);
+        });
       })
-      .catch((error) => console.log(error));
+      .catch((err) => console.log(err));
   };
 
   const showStripeButton = () => {
-    return isAutheticated() ? (
-      <StripeCheckoutButton
-        stripeKey="pk_test_51IZCxCSGHQvIl8IaNhn8r1TMiJft0NE9GBvPI8Hp4p5CCrMOmXhLusWSLBJrMNtG6q8KOqRXPWuW4mNj5Xwp57in002nx9UUTI"
+    return isAuthenticated() ? (
+      <Stripecheckout
+        stripeKey="pk_test_51I1uftKu3498s3qiCYmr5xPA6icms8MSTVE5CwbfhjFBLZ43H2afTzy47kNgGuywEfxSXXQuibQY9rAnNyPMLyuG0026VdjTvu"
         token={makePayment}
         amount={getFinalAmount() * 100}
-        name="Buy Ptoduct"
+        name="Pay with stripe"
         shippingAddress
         billingAddress
       >
-        <button className="btn btn-success">Pay with stripe</button>
-      </StripeCheckoutButton>
+        <button className="btn btn-success">Pay with Stripe</button>
+      </Stripecheckout>
     ) : (
       <Link to="/signin">
-        <button className="btn btn-warning">Signin</button>
+        <button className="btn btn-info">Signin</button>
       </Link>
     );
   };
 
   return (
     <div>
-      <h3 className="text-white">Stripe Checkout {getFinalAmount()}</h3>
+      <h3 className="text-white">
+        Stripe Checkout
+        {/* {getFinalAmount()} */}
+      </h3>
       {showStripeButton()}
     </div>
   );

@@ -1,11 +1,11 @@
 import React from "react";
 import Base from "../core/Base";
-import { isAutheticated } from "../auth/helper/index";
+import { isAuthenticated } from "../auth/helper/index";
 
 const UserDash = () => {
   const {
     user: { name, email },
-  } = isAutheticated();
+  } = isAuthenticated();
 
   return (
     <div className="card mb-4 bg-primary">

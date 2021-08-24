@@ -4,12 +4,12 @@ import { Link } from "react-router-dom";
 import {
   getCategories,
   getProduct,
-  updateProduct
+  updateProduct,
 } from "./helper/adminapicall";
-import { isAutheticated } from "../auth/helper/index";
+import { isAuthenticated } from "../auth/helper/index";
 
 const UpdateProduct = ({ match }) => {
-  const { user, token } = isAutheticated();
+  const { user, token } = isAuthenticated();
 
   const [values, setValues] = useState({
     name: "",
@@ -23,7 +23,7 @@ const UpdateProduct = ({ match }) => {
     error: "",
     createdProduct: "",
     getaRedirect: false,
-    formData: ""
+    formData: "",
   });
 
   const {
@@ -32,16 +32,12 @@ const UpdateProduct = ({ match }) => {
     price,
     stock,
     categories,
-    category,
-    loading,
-    error,
     createdProduct,
-    getaRedirect,
-    formData
+    formData,
   } = values;
 
-  const preload = productId => {
-    getProduct(productId).then(data => {
+  const preload = (productId) => {
+    getProduct(productId).then((data) => {
       //console.log(data);
       if (data.error) {
         setValues({ ...values, error: data.error });
@@ -54,20 +50,20 @@ const UpdateProduct = ({ match }) => {
           price: data.price,
           category: data.category._id,
           stock: data.stock,
-          formData: new FormData()
+          formData: new FormData(),
         });
       }
     });
   };
 
   const preloadCategories = () => {
-    getCategories().then(data => {
+    getCategories().then((data) => {
       if (data.error) {
         setValues({ ...values, error: data.error });
       } else {
         setValues({
           categories: data,
-          formData: new FormData()
+          formData: new FormData(),
         });
       }
     });
@@ -78,12 +74,12 @@ const UpdateProduct = ({ match }) => {
   }, []);
 
   //TODO: work on it
-  const onSubmit = event => {
+  const onSubmit = (event) => {
     event.preventDefault();
     setValues({ ...values, error: "", loading: true });
 
     updateProduct(match.params.productId, user._id, token, formData).then(
-      data => {
+      (data) => {
         if (data.error) {
           setValues({ ...values, error: data.error });
         } else {
@@ -95,14 +91,14 @@ const UpdateProduct = ({ match }) => {
             photo: "",
             stock: "",
             loading: false,
-            createdProduct: data.name
+            createdProduct: data.name,
           });
         }
       }
     );
   };
 
-  const handleChange = name => event => {
+  const handleChange = (name) => (event) => {
     const value = name === "photo" ? event.target.files[0] : event.target.value;
     formData.set(name, value);
     setValues({ ...values, [name]: value });
